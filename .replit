@@ -15,15 +15,28 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Test Google API"
+args = "Web Application"
 
 [[workflows.workflow]]
-name = "Test Google API"
+name = "Web Application"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python test_google_api.py"
+args = "python app.py"
+waitForPort = 5000
 
 [workflows.workflow.metadata]
-outputType = "console"
+outputType = "webview"
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[[ports]]
+localPort = 36541
+externalPort = 3000
+
+[deployment]
+deploymentTarget = "autoscale"
+run = ["python", "app.py"]
