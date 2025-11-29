@@ -1,0 +1,33 @@
+{
+  "name": "Google Search App",
+  "short_name": "SearchApp",
+  "description": "Application de recherche web avec Google Custom Search API",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#4285f4",
+  "theme_color": "#4285f4",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/static/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["utilities", "productivity"],
+  "lang": "fr"
+}

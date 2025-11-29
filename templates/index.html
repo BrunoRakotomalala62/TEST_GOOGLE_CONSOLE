@@ -2,8 +2,17 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Google Custom Search API</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#4285f4">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SearchApp">
+    <meta name="description" content="Application de recherche web avec Google Custom Search API">
+    <link rel="manifest" href="/static/manifest.json">
+    <link rel="apple-touch-icon" href="/static/icon-192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/static/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/static/icon-512.png">
+    <title>Google Search App</title>
     <style>
         * {
             margin: 0;
@@ -16,6 +25,7 @@
             background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
             min-height: 100vh;
             padding: 20px;
+            padding-bottom: 80px;
         }
         
         .container {
@@ -28,18 +38,19 @@
             color: white;
             margin-bottom: 10px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-size: 1.8em;
         }
         
         .subtitle {
             text-align: center;
             color: rgba(255,255,255,0.9);
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
         
         .card {
             background: white;
             border-radius: 15px;
-            padding: 25px;
+            padding: 20px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.2);
             margin-bottom: 20px;
         }
@@ -48,10 +59,12 @@
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
         
         .search-box input {
             flex: 1;
+            min-width: 200px;
             padding: 15px 20px;
             border: 2px solid #e9ecef;
             border-radius: 30px;
@@ -66,7 +79,7 @@
         }
         
         .btn {
-            padding: 15px 30px;
+            padding: 15px 25px;
             background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
             color: white;
             border: none;
@@ -74,6 +87,7 @@
             font-size: 16px;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
+            white-space: nowrap;
         }
         
         .btn:hover {
@@ -89,13 +103,27 @@
         
         .btn-test {
             background: linear-gradient(135deg, #fbbc05 0%, #ea4335 100%);
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .btn-install {
+            background: linear-gradient(135deg, #34a853 0%, #0f9d58 100%);
+            margin-bottom: 15px;
+            margin-left: 10px;
+            display: none;
+        }
+        
+        .btn-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
         }
         
         .status {
             padding: 15px;
             border-radius: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             display: none;
         }
         
@@ -131,7 +159,7 @@
         }
         
         .result-item {
-            padding: 20px;
+            padding: 15px;
             border-bottom: 1px solid #eee;
             transition: background 0.2s;
         }
@@ -145,7 +173,7 @@
         }
         
         .result-title {
-            font-size: 18px;
+            font-size: 16px;
             margin-bottom: 5px;
         }
         
@@ -160,7 +188,7 @@
         
         .result-link {
             color: #006621;
-            font-size: 14px;
+            font-size: 12px;
             margin-bottom: 8px;
             word-break: break-all;
         }
@@ -187,80 +215,90 @@
             100% { transform: rotate(360deg); }
         }
         
-        .info-box {
-            background: #fff3cd;
-            border: 1px solid #ffc107;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .info-box h3 {
-            color: #856404;
-            margin-bottom: 10px;
-        }
-        
-        .info-box p {
-            color: #856404;
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
-        
-        .info-box a {
-            color: #533f03;
-        }
-        
         .features {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
             margin-top: 20px;
         }
         
         .feature-item {
             text-align: center;
-            padding: 20px;
+            padding: 15px 10px;
             background: #f8f9fa;
             border-radius: 10px;
         }
         
         .feature-item .icon {
-            font-size: 2em;
-            margin-bottom: 10px;
+            font-size: 1.8em;
+            margin-bottom: 8px;
         }
         
         .feature-item h3 {
             color: #333;
-            font-size: 16px;
+            font-size: 14px;
             margin-bottom: 5px;
         }
         
         .feature-item p {
             color: #666;
-            font-size: 13px;
+            font-size: 12px;
+        }
+        
+        .install-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+            color: white;
+            padding: 15px 20px;
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+        
+        .install-banner.show {
+            display: flex;
+        }
+        
+        .install-banner p {
+            margin: 0;
+            font-size: 14px;
+        }
+        
+        .install-banner .btn {
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+        
+        .close-banner {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0 10px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Google Custom Search API</h1>
-        <p class="subtitle">Testez votre cle API avec une recherche web</p>
+        <h1>Google Search App</h1>
+        <p class="subtitle">Recherche web propulsee par Google</p>
         
         <div class="card">
-            <button class="btn btn-test" onclick="testApi()">Tester ma cle API</button>
+            <div class="btn-row">
+                <button class="btn btn-test" onclick="testApi()">Tester API</button>
+                <button class="btn btn-install" id="installBtn" onclick="installApp()">Installer l'App</button>
+            </div>
             
             <div class="status" id="apiStatus"></div>
             
-            <div class="info-box">
-                <h3>Configuration requise</h3>
-                <p>Pour utiliser la recherche, vous devez:</p>
-                <p>1. Avoir une cle API Google valide (deja configuree)</p>
-                <p>2. Creer un moteur de recherche personnalise: <a href="https://programmablesearchengine.google.com/controlpanel/create" target="_blank">Creer ici</a></p>
-                <p>3. Ajouter l'ID du moteur (cx) comme secret: SEARCH_ENGINE_ID</p>
-            </div>
-            
             <div class="search-box">
-                <input type="text" id="searchInput" placeholder="Entrez votre recherche..." onkeypress="handleKeyPress(event)">
+                <input type="text" id="searchInput" placeholder="Rechercher sur le web..." onkeypress="handleKeyPress(event)">
                 <button class="btn" id="searchBtn" onclick="search()">Rechercher</button>
             </div>
             
@@ -269,28 +307,83 @@
             <div class="features">
                 <div class="feature-item">
                     <div class="icon">🔍</div>
-                    <h3>Recherche Web</h3>
-                    <p>Recherchez sur le web avec l'API Google</p>
+                    <h3>Recherche</h3>
+                    <p>Recherche web Google</p>
                 </div>
                 <div class="feature-item">
-                    <div class="icon">🔑</div>
-                    <h3>Test API</h3>
-                    <p>Verifiez que votre cle fonctionne</p>
+                    <div class="icon">📱</div>
+                    <h3>PWA</h3>
+                    <p>Installable sur mobile</p>
                 </div>
                 <div class="feature-item">
-                    <div class="icon">📊</div>
-                    <h3>Resultats</h3>
-                    <p>Obtenez des resultats structures</p>
+                    <div class="icon">⚡</div>
+                    <h3>Rapide</h3>
+                    <p>Resultats instantanes</p>
+                </div>
+                <div class="feature-item">
+                    <div class="icon">🌐</div>
+                    <h3>Hors-ligne</h3>
+                    <p>Cache intelligent</p>
                 </div>
             </div>
         </div>
     </div>
+    
+    <div class="install-banner" id="installBanner">
+        <p>Installez cette app sur votre telephone!</p>
+        <div>
+            <button class="btn" onclick="installApp()">Installer</button>
+            <button class="close-banner" onclick="closeBanner()">&times;</button>
+        </div>
+    </div>
 
     <script>
+        let deferredPrompt;
+        
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/sw.js')
+                    .then(registration => {
+                        console.log('Service Worker enregistre:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.error('Erreur Service Worker:', error);
+                    });
+            });
+        }
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installBtn').style.display = 'inline-block';
+            document.getElementById('installBanner').classList.add('show');
+        });
+        
+        window.addEventListener('appinstalled', () => {
+            console.log('App installee!');
+            document.getElementById('installBtn').style.display = 'none';
+            document.getElementById('installBanner').classList.remove('show');
+        });
+        
+        async function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log('Choix installation:', outcome);
+                deferredPrompt = null;
+                document.getElementById('installBtn').style.display = 'none';
+                document.getElementById('installBanner').classList.remove('show');
+            }
+        }
+        
+        function closeBanner() {
+            document.getElementById('installBanner').classList.remove('show');
+        }
+        
         async function testApi() {
             const statusDiv = document.getElementById('apiStatus');
             statusDiv.className = 'status info';
-            statusDiv.innerHTML = '<span class="loading"></span> Test de la cle API en cours...';
+            statusDiv.innerHTML = '<span class="loading"></span> Test en cours...';
             
             try {
                 const response = await fetch('/test-api');
@@ -298,14 +391,14 @@
                 
                 if (data.status === 'success') {
                     statusDiv.className = 'status success';
-                    statusDiv.innerHTML = `${data.message} (${data.apis_count} APIs disponibles)`;
+                    statusDiv.innerHTML = `${data.message} (${data.apis_count} APIs)`;
                 } else {
                     statusDiv.className = 'status error';
                     statusDiv.innerHTML = `Erreur: ${data.message}`;
                 }
             } catch (error) {
                 statusDiv.className = 'status error';
-                statusDiv.innerHTML = `Erreur de connexion: ${error.message}`;
+                statusDiv.innerHTML = `Erreur: ${error.message}`;
             }
         }
         
@@ -319,7 +412,7 @@
             const resultsDiv = document.getElementById('results');
             
             searchBtn.disabled = true;
-            resultsDiv.innerHTML = '<p><span class="loading"></span> Recherche en cours...</p>';
+            resultsDiv.innerHTML = '<p><span class="loading"></span> Recherche...</p>';
             
             try {
                 const response = await fetch('/search', {
@@ -333,7 +426,7 @@
                 if (data.error) {
                     resultsDiv.innerHTML = `<div class="status error">${escapeHtml(data.error)}</div>`;
                 } else if (data.results && data.results.length > 0) {
-                    let html = `<div class="results-info">Environ ${data.total} resultats (${data.time} secondes)</div>`;
+                    let html = `<div class="results-info">${data.total} resultats (${data.time}s)</div>`;
                     
                     data.results.forEach(item => {
                         html += `
@@ -349,7 +442,7 @@
                     
                     resultsDiv.innerHTML = html;
                 } else {
-                    resultsDiv.innerHTML = '<p>Aucun resultat trouve.</p>';
+                    resultsDiv.innerHTML = '<p>Aucun resultat.</p>';
                 }
             } catch (error) {
                 resultsDiv.innerHTML = `<div class="status error">Erreur: ${escapeHtml(error.message)}</div>`;
