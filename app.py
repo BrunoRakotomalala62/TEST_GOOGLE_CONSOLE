@@ -1,114 +1,99 @@
 import os
+import json
+import urllib.request
+import urllib.parse
+import urllib.error
 from flask import Flask, render_template, request, jsonify
-from google import genai
-from google.genai import types
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
-GOOGLE_MAPS_API_KEY = os.environ.get("GOOGLE_MAPS_API_KEY") or os.environ.get("GOOGLE_API_KEY")
-
-client = None
-if GEMINI_API_KEY:
-    client = genai.Client(api_key=GEMINI_API_KEY)
+GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
+SEARCH_ENGINE_ID = os.environ.get("SEARCH_ENGINE_ID", "")
 
 @app.route('/')
 def index():
-    return render_template('index.html', maps_api_key=GOOGLE_MAPS_API_KEY)
+    return render_template('index.html', api_configured=bool(GOOGLE_API_KEY))
 
-@app.route('/chat', methods=['POST'])
-def chat():
-    if not client:
-        return jsonify({'error': 'Cle API Gemini non configuree'}), 500
-    
-    try:
-        data = request.get_json()
-        user_message = data.get('message', '')
-        
-        if not user_message:
-            return jsonify({'error': 'Message vide'}), 400
-        
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=user_message
-        )
-        
-        return jsonify({'response': response.text})
-    
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-@app.route('/geocode', methods=['POST'])
-def geocode():
-    try:
-        data = request.get_json()
-        address = data.get('address', '')
-        
-        if not address:
-            return jsonify({'error': 'Adresse vide'}), 400
-        
-        if not client:
-            return jsonify({'error': 'Cle API non configuree'}), 500
-        
-        prompt = f"""Tu es un assistant de geocodage. Pour l'adresse suivante, donne-moi les coordonnees GPS (latitude, longitude) au format JSON.
-        
-Adresse: {address}
-
-Reponds UNIQUEMENT avec un JSON valide dans ce format exact:
-{{"latitude": number, "longitude": number, "formatted_address": "string"}}
-
-Si tu ne peux pas trouver les coordonnees, utilise des coordonnees approximatives pour la ville ou le pays mentionne."""
-
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt
-        )
-        
-        import json
-        import re
-        
-        text = response.text or ""
-        json_match = re.search(r'\{[^{}]+\}', text)
-        if json_match:
-            coords = json.loads(json_match.group())
-            return jsonify(coords)
-        else:
-            return jsonify({'error': 'Impossible de parser les coordonnees'}), 500
-    
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-@app.route('/analyze-location', methods=['POST'])
-def analyze_location():
-    if not client:
+@app.route('/search', methods=['POST'])
+def search():
+    if not GOOGLE_API_KEY:
         return jsonify({'error': 'Cle API non configuree'}), 500
     
     try:
         data = request.get_json()
-        lat = data.get('lat')
-        lng = data.get('lng')
+        query = data.get('query', '')
         
-        prompt = f"""Tu es un guide touristique expert. Pour les coordonnees GPS suivantes:
-Latitude: {lat}
-Longitude: {lng}
-
-Donne-moi des informations interessantes sur cet endroit:
-1. Quel lieu/ville/pays se trouve a ces coordonnees?
-2. Quels sont les points d'interet a proximite?
-3. Une anecdote historique ou culturelle interessante sur cet endroit.
-
-Reponds de maniere concise et informative en francais."""
-
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt
-        )
+        if not query:
+            return jsonify({'error': 'Recherche vide'}), 400
         
-        return jsonify({'analysis': response.text})
+        search_engine_id = SEARCH_ENGINE_ID or "a1b2c3d4e5f6g7h8i"
+        
+        params = urllib.parse.urlencode({
+            'key': GOOGLE_API_KEY,
+            'cx': search_engine_id,
+            'q': query,
+            'num': 10
+        })
+        
+        url = f"https://www.googleapis.com/customsearch/v1?{params}"
+        
+        req = urllib.request.Request(url)
+        with urllib.request.urlopen(req, timeout=10) as response:
+            result = json.loads(response.read().decode())
+            
+            items = result.get('items', [])
+            search_results = []
+            
+            for item in items:
+                search_results.append({
+                    'title': item.get('title', ''),
+                    'link': item.get('link', ''),
+                    'snippet': item.get('snippet', ''),
+                    'image': item.get('pagemap', {}).get('cse_thumbnail', [{}])[0].get('src', '')
+                })
+            
+            return jsonify({
+                'results': search_results,
+                'total': result.get('searchInformation', {}).get('totalResults', 0),
+                'time': result.get('searchInformation', {}).get('formattedSearchTime', '')
+            })
+    
+    except urllib.error.HTTPError as e:
+        error_body = e.read().decode()
+        try:
+            error_json = json.loads(error_body)
+            error_message = error_json.get('error', {}).get('message', str(e))
+        except:
+            error_message = str(e)
+        return jsonify({'error': f'Erreur API: {error_message}'}), e.code
     
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/test-api', methods=['GET'])
+def test_api():
+    if not GOOGLE_API_KEY:
+        return jsonify({'status': 'error', 'message': 'Cle API non configuree'}), 500
+    
+    try:
+        url = f"https://www.googleapis.com/discovery/v1/apis?key={GOOGLE_API_KEY}"
+        
+        req = urllib.request.Request(url)
+        with urllib.request.urlopen(req, timeout=10) as response:
+            data = json.loads(response.read().decode())
+            
+            if 'items' in data:
+                return jsonify({
+                    'status': 'success',
+                    'message': 'Cle API valide!',
+                    'apis_count': len(data['items'])
+                })
+            else:
+                return jsonify({'status': 'error', 'message': 'Reponse inattendue'})
+    
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

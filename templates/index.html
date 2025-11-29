@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Demo Google APIs - Gemini AI & Maps</title>
+    <title>Test Google Custom Search API</title>
     <style>
         * {
             margin: 0;
@@ -13,33 +13,27 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
             min-height: 100vh;
             padding: 20px;
         }
         
         .container {
-            max-width: 1400px;
+            max-width: 900px;
             margin: 0 auto;
         }
         
         h1 {
             text-align: center;
             color: white;
-            margin-bottom: 30px;
+            margin-bottom: 10px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
         
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        
-        @media (max-width: 900px) {
-            .grid {
-                grid-template-columns: 1fr;
-            }
+        .subtitle {
+            text-align: center;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 30px;
         }
         
         .card {
@@ -47,79 +41,36 @@
             border-radius: 15px;
             padding: 25px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-        }
-        
-        .card h2 {
-            color: #333;
             margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
         }
         
-        .card h2 .icon {
-            font-size: 1.5em;
-        }
-        
-        .chat-container {
-            display: flex;
-            flex-direction: column;
-            height: 500px;
-        }
-        
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .message {
-            margin-bottom: 15px;
-            padding: 12px 16px;
-            border-radius: 15px;
-            max-width: 85%;
-            word-wrap: break-word;
-        }
-        
-        .message.user {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            margin-left: auto;
-        }
-        
-        .message.bot {
-            background: #e9ecef;
-            color: #333;
-        }
-        
-        .chat-input {
+        .search-box {
             display: flex;
             gap: 10px;
+            margin-bottom: 20px;
         }
         
-        .chat-input input {
+        .search-box input {
             flex: 1;
-            padding: 15px;
+            padding: 15px 20px;
             border: 2px solid #e9ecef;
-            border-radius: 25px;
+            border-radius: 30px;
             font-size: 16px;
             outline: none;
-            transition: border-color 0.3s;
+            transition: border-color 0.3s, box-shadow 0.3s;
         }
         
-        .chat-input input:focus {
-            border-color: #667eea;
+        .search-box input:focus {
+            border-color: #4285f4;
+            box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.2);
         }
         
         .btn {
-            padding: 15px 25px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
             color: white;
             border: none;
-            border-radius: 25px;
+            border-radius: 30px;
             font-size: 16px;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
@@ -127,7 +78,7 @@
         
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 5px 20px rgba(66, 133, 244, 0.4);
         }
         
         .btn:disabled {
@@ -136,53 +87,88 @@
             transform: none;
         }
         
-        .map-container {
-            height: 500px;
-            display: flex;
-            flex-direction: column;
+        .btn-test {
+            background: linear-gradient(135deg, #fbbc05 0%, #ea4335 100%);
+            margin-bottom: 20px;
         }
         
-        .search-box {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .search-box input {
-            flex: 1;
-            padding: 12px 20px;
-            border: 2px solid #e9ecef;
-            border-radius: 25px;
-            font-size: 14px;
-            outline: none;
-        }
-        
-        .search-box input:focus {
-            border-color: #667eea;
-        }
-        
-        #map {
-            flex: 1;
-            border-radius: 10px;
-            background: #e9ecef;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #666;
-        }
-        
-        .location-info {
-            margin-top: 15px;
+        .status {
             padding: 15px;
-            background: #f8f9fa;
             border-radius: 10px;
-            max-height: 150px;
-            overflow-y: auto;
+            margin-bottom: 20px;
             display: none;
         }
         
-        .location-info.active {
+        .status.success {
             display: block;
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            display: block;
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status.info {
+            display: block;
+            background: #cce5ff;
+            color: #004085;
+            border: 1px solid #b8daff;
+        }
+        
+        .results-container {
+            margin-top: 20px;
+        }
+        
+        .results-info {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        .result-item {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            transition: background 0.2s;
+        }
+        
+        .result-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .result-title {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        
+        .result-title a {
+            color: #1a0dab;
+            text-decoration: none;
+        }
+        
+        .result-title a:hover {
+            text-decoration: underline;
+        }
+        
+        .result-link {
+            color: #006621;
+            font-size: 14px;
+            margin-bottom: 8px;
+            word-break: break-all;
+        }
+        
+        .result-snippet {
+            color: #545454;
+            font-size: 14px;
+            line-height: 1.5;
         }
         
         .loading {
@@ -190,9 +176,10 @@
             width: 20px;
             height: 20px;
             border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
+            border-top: 3px solid #4285f4;
             border-radius: 50%;
             animation: spin 1s linear infinite;
+            margin-right: 10px;
         }
         
         @keyframes spin {
@@ -200,227 +187,172 @@
             100% { transform: rotate(360deg); }
         }
         
-        .features {
-            margin-top: 30px;
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-        }
-        
-        .features h2 {
-            color: #333;
+        .info-box {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 10px;
+            padding: 15px;
             margin-bottom: 20px;
         }
         
-        .feature-list {
+        .info-box h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        
+        .info-box p {
+            color: #856404;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .info-box a {
+            color: #533f03;
+        }
+        
+        .features {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
         }
         
         .feature-item {
+            text-align: center;
             padding: 20px;
             background: #f8f9fa;
             border-radius: 10px;
-            text-align: center;
         }
         
         .feature-item .icon {
-            font-size: 2.5em;
+            font-size: 2em;
             margin-bottom: 10px;
         }
         
         .feature-item h3 {
             color: #333;
-            margin-bottom: 10px;
+            font-size: 16px;
+            margin-bottom: 5px;
         }
         
         .feature-item p {
             color: #666;
-            font-size: 14px;
+            font-size: 13px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Demo Google APIs - Gemini AI & Maps</h1>
+        <h1>Google Custom Search API</h1>
+        <p class="subtitle">Testez votre cle API avec une recherche web</p>
         
-        <div class="grid">
-            <div class="card">
-                <h2><span class="icon">🤖</span> Gemini AI - Chatbot Intelligent</h2>
-                <div class="chat-container">
-                    <div class="chat-messages" id="chatMessages">
-                        <div class="message bot">
-                            Bonjour! Je suis un assistant IA propulse par Google Gemini. Comment puis-je vous aider aujourd'hui?
-                        </div>
-                    </div>
-                    <div class="chat-input">
-                        <input type="text" id="chatInput" placeholder="Tapez votre message..." onkeypress="handleKeyPress(event)">
-                        <button class="btn" id="sendBtn" onclick="sendMessage()">Envoyer</button>
-                    </div>
-                </div>
+        <div class="card">
+            <button class="btn btn-test" onclick="testApi()">Tester ma cle API</button>
+            
+            <div class="status" id="apiStatus"></div>
+            
+            <div class="info-box">
+                <h3>Configuration requise</h3>
+                <p>Pour utiliser la recherche, vous devez:</p>
+                <p>1. Avoir une cle API Google valide (deja configuree)</p>
+                <p>2. Creer un moteur de recherche personnalise: <a href="https://programmablesearchengine.google.com/controlpanel/create" target="_blank">Creer ici</a></p>
+                <p>3. Ajouter l'ID du moteur (cx) comme secret: SEARCH_ENGINE_ID</p>
             </div>
             
-            <div class="card">
-                <h2><span class="icon">🗺️</span> Google Maps - Exploration</h2>
-                <div class="map-container">
-                    <div class="search-box">
-                        <input type="text" id="addressInput" placeholder="Entrez une adresse ou un lieu..." onkeypress="handleMapKeyPress(event)">
-                        <button class="btn" id="searchBtn" onclick="searchLocation()">Rechercher</button>
-                    </div>
-                    <div id="map">
-                        <p>Entrez une adresse pour afficher la carte</p>
-                    </div>
-                    <div class="location-info" id="locationInfo"></div>
-                </div>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Entrez votre recherche..." onkeypress="handleKeyPress(event)">
+                <button class="btn" id="searchBtn" onclick="search()">Rechercher</button>
             </div>
-        </div>
-        
-        <div class="features">
-            <h2>Fonctionnalites disponibles</h2>
-            <div class="feature-list">
+            
+            <div class="results-container" id="results"></div>
+            
+            <div class="features">
                 <div class="feature-item">
-                    <div class="icon">💬</div>
-                    <h3>Chat IA</h3>
-                    <p>Discutez avec Gemini AI pour obtenir des reponses intelligentes a vos questions.</p>
+                    <div class="icon">🔍</div>
+                    <h3>Recherche Web</h3>
+                    <p>Recherchez sur le web avec l'API Google</p>
                 </div>
                 <div class="feature-item">
-                    <div class="icon">📍</div>
-                    <h3>Geocodage</h3>
-                    <p>Convertissez des adresses en coordonnees GPS grace a l'IA.</p>
+                    <div class="icon">🔑</div>
+                    <h3>Test API</h3>
+                    <p>Verifiez que votre cle fonctionne</p>
                 </div>
                 <div class="feature-item">
-                    <div class="icon">🏛️</div>
-                    <h3>Infos Lieu</h3>
-                    <p>Obtenez des informations detaillees sur n'importe quel endroit dans le monde.</p>
-                </div>
-                <div class="feature-item">
-                    <div class="icon">🌍</div>
-                    <h3>Carte Interactive</h3>
-                    <p>Explorez le monde avec une carte interactive alimentee par Google Maps.</p>
+                    <div class="icon">📊</div>
+                    <h3>Resultats</h3>
+                    <p>Obtenez des resultats structures</p>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        let map;
-        let marker;
-        const mapsApiKey = "{{ maps_api_key }}";
-        
-        function initMap(lat = 48.8566, lng = 2.3522) {
-            const mapDiv = document.getElementById('map');
-            mapDiv.innerHTML = `<iframe 
-                width="100%" 
-                height="100%" 
-                style="border:0; border-radius: 10px;" 
-                loading="lazy" 
-                allowfullscreen 
-                referrerpolicy="no-referrer-when-downgrade"
-                src="https://www.google.com/maps/embed/v1/view?key=${mapsApiKey}&center=${lat},${lng}&zoom=12">
-            </iframe>`;
-        }
-        
-        function updateMap(lat, lng, placeName) {
-            const mapDiv = document.getElementById('map');
-            const encodedPlace = encodeURIComponent(placeName || `${lat},${lng}`);
-            mapDiv.innerHTML = `<iframe 
-                width="100%" 
-                height="100%" 
-                style="border:0; border-radius: 10px;" 
-                loading="lazy" 
-                allowfullscreen 
-                referrerpolicy="no-referrer-when-downgrade"
-                src="https://www.google.com/maps/embed/v1/place?key=${mapsApiKey}&q=${encodedPlace}">
-            </iframe>`;
-        }
-        
-        async function sendMessage() {
-            const input = document.getElementById('chatInput');
-            const message = input.value.trim();
-            
-            if (!message) return;
-            
-            const messagesDiv = document.getElementById('chatMessages');
-            const sendBtn = document.getElementById('sendBtn');
-            
-            messagesDiv.innerHTML += `<div class="message user">${escapeHtml(message)}</div>`;
-            input.value = '';
-            sendBtn.disabled = true;
-            
-            messagesDiv.innerHTML += `<div class="message bot" id="loadingMsg"><span class="loading"></span> Reflexion en cours...</div>`;
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        async function testApi() {
+            const statusDiv = document.getElementById('apiStatus');
+            statusDiv.className = 'status info';
+            statusDiv.innerHTML = '<span class="loading"></span> Test de la cle API en cours...';
             
             try {
-                const response = await fetch('/chat', {
+                const response = await fetch('/test-api');
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    statusDiv.className = 'status success';
+                    statusDiv.innerHTML = `${data.message} (${data.apis_count} APIs disponibles)`;
+                } else {
+                    statusDiv.className = 'status error';
+                    statusDiv.innerHTML = `Erreur: ${data.message}`;
+                }
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.innerHTML = `Erreur de connexion: ${error.message}`;
+            }
+        }
+        
+        async function search() {
+            const input = document.getElementById('searchInput');
+            const query = input.value.trim();
+            
+            if (!query) return;
+            
+            const searchBtn = document.getElementById('searchBtn');
+            const resultsDiv = document.getElementById('results');
+            
+            searchBtn.disabled = true;
+            resultsDiv.innerHTML = '<p><span class="loading"></span> Recherche en cours...</p>';
+            
+            try {
+                const response = await fetch('/search', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message })
+                    body: JSON.stringify({ query })
                 });
                 
                 const data = await response.json();
-                document.getElementById('loadingMsg').remove();
                 
                 if (data.error) {
-                    messagesDiv.innerHTML += `<div class="message bot">Erreur: ${escapeHtml(data.error)}</div>`;
-                } else {
-                    messagesDiv.innerHTML += `<div class="message bot">${formatResponse(data.response)}</div>`;
-                }
-            } catch (error) {
-                document.getElementById('loadingMsg').remove();
-                messagesDiv.innerHTML += `<div class="message bot">Erreur de connexion: ${escapeHtml(error.message)}</div>`;
-            }
-            
-            sendBtn.disabled = false;
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        }
-        
-        async function searchLocation() {
-            const input = document.getElementById('addressInput');
-            const address = input.value.trim();
-            
-            if (!address) return;
-            
-            const searchBtn = document.getElementById('searchBtn');
-            const locationInfo = document.getElementById('locationInfo');
-            
-            searchBtn.disabled = true;
-            locationInfo.classList.add('active');
-            locationInfo.innerHTML = '<span class="loading"></span> Recherche en cours...';
-            
-            try {
-                const geocodeResponse = await fetch('/geocode', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ address })
-                });
-                
-                const geocodeData = await geocodeResponse.json();
-                
-                if (geocodeData.error) {
-                    locationInfo.innerHTML = `Erreur: ${escapeHtml(geocodeData.error)}`;
-                } else {
-                    updateMap(geocodeData.latitude, geocodeData.longitude, geocodeData.formatted_address || address);
+                    resultsDiv.innerHTML = `<div class="status error">${escapeHtml(data.error)}</div>`;
+                } else if (data.results && data.results.length > 0) {
+                    let html = `<div class="results-info">Environ ${data.total} resultats (${data.time} secondes)</div>`;
                     
-                    locationInfo.innerHTML = '<span class="loading"></span> Analyse du lieu...';
-                    
-                    const analysisResponse = await fetch('/analyze-location', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ lat: geocodeData.latitude, lng: geocodeData.longitude })
+                    data.results.forEach(item => {
+                        html += `
+                            <div class="result-item">
+                                <div class="result-title">
+                                    <a href="${escapeHtml(item.link)}" target="_blank">${escapeHtml(item.title)}</a>
+                                </div>
+                                <div class="result-link">${escapeHtml(item.link)}</div>
+                                <div class="result-snippet">${escapeHtml(item.snippet)}</div>
+                            </div>
+                        `;
                     });
                     
-                    const analysisData = await analysisResponse.json();
-                    
-                    if (analysisData.error) {
-                        locationInfo.innerHTML = `<strong>Coordonnees:</strong> ${geocodeData.latitude}, ${geocodeData.longitude}<br><br>Erreur lors de l'analyse: ${escapeHtml(analysisData.error)}`;
-                    } else {
-                        locationInfo.innerHTML = formatResponse(analysisData.analysis);
-                    }
+                    resultsDiv.innerHTML = html;
+                } else {
+                    resultsDiv.innerHTML = '<p>Aucun resultat trouve.</p>';
                 }
             } catch (error) {
-                locationInfo.innerHTML = `Erreur: ${escapeHtml(error.message)}`;
+                resultsDiv.innerHTML = `<div class="status error">Erreur: ${escapeHtml(error.message)}</div>`;
             }
             
             searchBtn.disabled = false;
@@ -428,32 +360,15 @@
         
         function handleKeyPress(event) {
             if (event.key === 'Enter') {
-                sendMessage();
-            }
-        }
-        
-        function handleMapKeyPress(event) {
-            if (event.key === 'Enter') {
-                searchLocation();
+                search();
             }
         }
         
         function escapeHtml(text) {
+            if (!text) return '';
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
-        }
-        
-        function formatResponse(text) {
-            if (!text) return '';
-            let formatted = escapeHtml(text);
-            formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            formatted = formatted.replace(/\n/g, '<br>');
-            return formatted;
-        }
-        
-        if (mapsApiKey && mapsApiKey !== 'None') {
-            initMap();
         }
     </script>
 </body>
